@@ -76,10 +76,15 @@ class network {
     
     public layer[] Layers;
     
-    public network(int inputLayer, layer[] hLayers , int n, int c){ //hLayers ad karışmasın diye
-        Layers = new layer[inputLayer];
-        for (int i = 0; i < inputLayer; i++) {
-            Layers[i] = new layer(n, c);
+    public network(int inputLayer, int[] layers){ //hLayers ad karışmasın diye
+
+        Layers = new layer[layers.length];
+
+        int LayerSize = inputLayer;
+
+        for (int i:layers){
+            Layers[i] = new layer(i, LayerSize);
+            LayerSize = i;
         }
     }
     
