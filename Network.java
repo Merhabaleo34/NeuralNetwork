@@ -31,7 +31,7 @@ class neuron {
     public neuron(int Connections){
         Weights = new Double[Connections];
         for (int i = 0;i<Connections;i++){
-            Weights[i] = Math.random(); // TODO
+            Weights[i] = Math.random();
         }
         Bias = Math.random();
     }
