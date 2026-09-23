@@ -1,13 +1,12 @@
-import java.util.ArrayList;
 
-public class Main
+public class Network
 {
 	public static void main(String[] args) {
 	    layer a = new layer(3, 2);  
 	    for (neuron i:a.Neurons){
 	        System.out.println();
 		    System.out.println(i);
-		    for (Double m:i.Weights){
+		    for (double m:i.Weights){
 		        System.out.print("weight: ");
 		        System.out.println(m);
 		    }
@@ -17,38 +16,38 @@ public class Main
 	    
 	    System.out.println("\n --RESUTS--");
 	    
-	    Double[] c = {0.5,0.4};
-	    for (Double z: a.activate(c)){
+	    double[] c = {0.5,0.4};
+	    for (double z: a.activate(c)){
 	        System.out.println(z);
 	    }
 	}
 }
 
 class neuron {
-    public Double[] Weights;
-    public Double Bias;
+    public double[] Weights;
+    public double Bias;
     
     public neuron(int Connections){
-        Weights = new Double[Connections];
+        Weights = new double[Connections];
         for (int i = 0;i<Connections;i++){
             Weights[i] = Math.random();
         }
         Bias = Math.random();
     }
     
-    public Double fire(Double[] Values){
+    public double fire(double[] Values){
         int Count = 0;
-        Double Sum = 0.0;
+        double Sum = 0.0;
         
-        for (Double num:Values){
+        for (double num:Values){
             Sum += num*Weights[Count++];
         }
         Sum += Bias;
         return neuron.ActivationFunction(Sum);
     }
     
-    private static Double ActivationFunction(Double value){
-        Double x = Math.exp(value);
+    private static double ActivationFunction(double value){
+        double x = Math.exp(value);
         return x/(x+1);
     }
 }
@@ -63,8 +62,8 @@ class layer {
         }
     }
     
-    public Double[] activate(Double[] input){
-        Double[] array = new Double[Neurons.length];
+    public double[] activate(double[] input){
+        double[] array = new double[Neurons.length];
         int count = 0;
         for(neuron node: Neurons){
             array[count++] = node.fire(input);
@@ -77,11 +76,18 @@ class network {
     
     public layer[] Layers;
     
-    public network(int inputLayer, layer[] hLayers){ //hLayers ad karışmasın diye
-        //TODO
+    public network(int inputLayer, layer[] hLayers , int n, int c){ //hLayers ad karışmasın diye
+        Layers = new layer[inputLayer];
+        for (int i = 0; i < inputLayer; i++) {
+            Layers[i] = new layer(n, c);
+        }
     }
     
-    public Double[] run(Double[] input){ //layerları birleştir
-        //TODO
+    public double[] run(double[] input){
+        double[] prev_result = input;
+        for (layer Layer: Layers){
+            prev_result = Layer.activate(prev_result);
+        }
+        return prev_result;
     }
-}
+}   
