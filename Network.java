@@ -1,24 +1,11 @@
 
-public class Network
+public class Main
 {
 	public static void main(String[] args) {
-	    layer a = new layer(3, 2);  
-	    for (neuron i:a.Neurons){
-	        System.out.println();
-		    System.out.println(i);
-		    for (double m:i.Weights){
-		        System.out.print("weight: ");
-		        System.out.println(m);
-		    }
-		    System.out.print("bias: ");
-		    System.out.println(i.Bias);
-	    }
-	    
-	    System.out.println("\n --RESUTS--");
-	    
-	    double[] c = {0.5,0.4};
-	    for (double z: a.activate(c)){
-	        System.out.println(z);
+	    network digit = new network(2, new int[]{3,2});
+	    double[] output = digit.run(new double[]{0.5,0.5});
+	    for (double i:output){
+	        System.out.print(i);
 	    }
 	}
 }
@@ -32,7 +19,7 @@ class neuron {
         for (int i = 0;i<Connections;i++){
             Weights[i] = Math.random();
         }
-        Bias = Math.random();
+        Bias = Math.random() * 2 - 1;
     }
     
     public double fire(double[] Values){
@@ -81,9 +68,11 @@ class network {
         Layers = new layer[layers.length];
 
         int LayerSize = inputLayer;
+        
+        int count = 0;
 
         for (int i:layers){
-            Layers[i] = new layer(i, LayerSize);
+            Layers[count++] = new layer(i, LayerSize);
             LayerSize = i;
         }
     }
