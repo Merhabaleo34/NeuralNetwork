@@ -13,42 +13,42 @@ public class Network
 		    System.out.print("bias: ");
 		    System.out.println(i.Bias);
 	    }
-	    
-	    System.out.println("\n --RESUTS--");
-	    
-	    double[] c = {0.5,0.4};
-	    for (double z: a.activate(c)){
-	        System.out.println(z);
-	    }
 	}
 }
 
 class neuron {
     public double[] Weights;
     public double Bias;
-    
+
+    public double Value;
+
     public neuron(int Connections){
         Weights = new double[Connections];
         for (int i = 0;i<Connections;i++){
             Weights[i] = Math.random();
         }
         Bias = Math.random();
+        Value = 0.0;
     }
     
-    public double fire(double[] Values){
+    public void fire(double[] Values){
         int Count = 0;
-        double Sum = 0.0;
         
         for (double num:Values){
-            Sum += num*Weights[Count++];
+            Value += num*Weights[Count++];
         }
-        Sum += Bias;
-        return neuron.ActivationFunction(Sum);
+        Value += Bias;
+        Value = neuron.ActivationFunction(Value);
     }
     
     private static double ActivationFunction(double value){
         double x = Math.exp(value);
         return x/(x+1);
+    }
+
+    public static double ActivationFunctionDerivative(double value){
+        double x = Math.exp(value);
+        return x/Math.pow(x+1, 2);
     }
 }
 
@@ -62,13 +62,10 @@ class layer {
         }
     }
     
-    public double[] activate(double[] input){
-        double[] array = new double[Neurons.length];
-        int count = 0;
+    public void activate(double[] input){
         for(neuron node: Neurons){
-            array[count++] = node.fire(input);
+            node.fire(input);
         }
-        return array;
     }
 }
 
@@ -76,7 +73,7 @@ class network {
     
     public layer[] Layers;
     
-    public network(int inputLayer, int[] layers){ //hLayers ad karışmasın diye
+    public network(int inputLayer, int[] layers){
 
         Layers = new layer[layers.length];
 
@@ -91,8 +88,48 @@ class network {
     public double[] run(double[] input){
         double[] prev_result = input;
         for (layer Layer: Layers){
-            prev_result = Layer.activate(prev_result);
+            Layer.activate(prev_result);
+            for (int d = 0; d<prev_result.length; d++){
+                prev_result[d] = Layer.Neurons[d].Value;
+            }
         }
         return prev_result;
+    }
+
+    public layer getLastLayer(){
+        return Layers[Layers.length-1];
+    }
+
+    public double cost(double[] input, double[] expected){
+        double[] x = run(input);
+        double sum = 0;
+        for (int b = 0; b<x.length; b++){
+            sum += (Math.pow(x[b]-expected[b], 2));
+        }
+        return sum;
+    }
+
+    public double[][] CalculateAdjustment(double[] costDerivatives){
+        int layerLength = Layers.length;
+        // Initialize the AdjustmentValues
+        double[][] AdjustmentValues = new double[layerLength][];
+        for (int i = 0; i<layerLength; i++){
+            AdjustmentValues[i] = new double[Layers[i].Neurons.length];
+        }
+
+        //Calculate first layer
+        for (int j = 0; j < Layers[layerLength-1].Neurons.length; j++){
+        AdjustmentValues[layerLength-1][j] = neuron.ActivationFunctionDerivative(costDerivatives[j]);
+        }
+
+        //Calculate the rest
+        for (int l = layerLength-1; l>0; l--){
+            for (int k = 0; k < Layers[l].Neurons.length; k++){
+                for (double weight: Layers[l].Neurons[k].Weights){
+                    AdjustmentValues[l][k] += weight*Layers[l].Neurons[k].Value;
+                }
+            }
+        }
+        return AdjustmentValues;
     }
 }   
